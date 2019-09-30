@@ -23,5 +23,4 @@ dependencies {
 
     compileOnly 'io.reactivex.rxjava2:rxjava:2.2.11'
     compileOnly "androidx.lifecycle:lifecycle-runtime:2.1.0"
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.1.0"
 }

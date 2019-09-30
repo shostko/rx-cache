@@ -3,9 +3,8 @@
 package by.shostko.rxcache
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
@@ -18,13 +17,15 @@ import kotlin.reflect.KProperty
 
 fun <T> LifecycleOwner.flowable(initializer: () -> Flowable<T>): ReadOnlyProperty<LifecycleOwner, Flowable<T>> = FlowableCache(lifecycle, initializer)
 
-fun <T> LifecycleOwner.observable(initializer: () -> Observable<T>): ReadOnlyProperty<LifecycleOwner, Observable<T>> = ObservableCache(lifecycle, initializer)
+fun <T> LifecycleOwner.observable(initializer: () -> Observable<T>): ReadOnlyProperty<LifecycleOwner, Observable<T>> =
+    ObservableCache(lifecycle, initializer)
 
 fun <T> LifecycleOwner.single(initializer: () -> Single<T>): ReadOnlyProperty<LifecycleOwner, Single<T>> = SingleCache(lifecycle, initializer)
 
 fun <T> LifecycleOwner.maybe(initializer: () -> Maybe<T>): ReadOnlyProperty<LifecycleOwner, Maybe<T>> = MaybeCache(lifecycle, initializer)
 
-fun <T> LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> = CompletableCache(lifecycle, initializer)
+fun <T> LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> =
+    CompletableCache(lifecycle, initializer)
 
 class FlowableCache<T>(lifecycle: Lifecycle, initializer: () -> Flowable<T>) : RxCache<Flowable<T>, FlowableProcessor<T>>(lifecycle, initializer) {
 
@@ -96,10 +97,9 @@ abstract class RxCache<T, H>(lifecycle: Lifecycle, initializer: () -> T) : ReadO
                     }
                     holder = createHolder()
                     val disposable = subscribe(initialize(), holder!!)
-                    lifecycle!!.addObserver(object : LifecycleObserver {
-                        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                        fun onDestroy() {
-                            if (!disposable.isDisposed) {
+                    lifecycle!!.addObserver(object : LifecycleEventObserver {
+                        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                            if (event == Lifecycle.Event.ON_DESTROY && !disposable.isDisposed) {
                                 disposable.dispose()
                             }
                         }
