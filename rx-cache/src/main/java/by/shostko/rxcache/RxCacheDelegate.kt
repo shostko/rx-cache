@@ -85,33 +85,30 @@ abstract class RxCache<T, H>(lifecycle: Lifecycle, initializer: () -> T) : ReadO
 
     private var lifecycle: Lifecycle? = lifecycle
     private var initializer: (() -> T)? = initializer
-    private val lock: Any by lazy { emptyArray<Any>() }
-    private val holderDelegate: Lazy<H> = lazy(::createHolder)
-    private val holder: H by holderDelegate
+    private var holder: H? = null
 
     override fun getValue(thisRef: Any, property: KProperty<*>): T {
-        if (holderDelegate.isInitialized()) {
-            return finalize(holder)
-        }
-        synchronized(lock) {
-            if (holderDelegate.isInitialized()) {
-                return finalize(holder)
-            }
-            if (lifecycle!!.currentState == Lifecycle.State.DESTROYED) {
-                throw UnsupportedOperationException("Can't create Stream in DESTROYED state")
-            }
-            val disposable = subscribe(initialize(), holder)
-            lifecycle!!.addObserver(object : LifecycleObserver {
-                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                fun onDestroy() {
-                    if (!disposable.isDisposed) {
-                        disposable.dispose()
+        if (holder == null) {
+            synchronized(this) {
+                if (holder == null) {
+                    if (lifecycle!!.currentState == Lifecycle.State.DESTROYED) {
+                        throw UnsupportedOperationException("Can't create Stream in DESTROYED state")
                     }
+                    holder = createHolder()
+                    val disposable = subscribe(initialize(), holder!!)
+                    lifecycle!!.addObserver(object : LifecycleObserver {
+                        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                        fun onDestroy() {
+                            if (!disposable.isDisposed) {
+                                disposable.dispose()
+                            }
+                        }
+                    })
+                    lifecycle = null
                 }
-            })
-            lifecycle = null
-            return finalize(holder)
+            }
         }
+        return finalize(holder!!)
     }
 
     private fun initialize(): T {
