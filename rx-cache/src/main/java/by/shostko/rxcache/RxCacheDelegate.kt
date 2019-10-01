@@ -17,23 +17,21 @@ import kotlin.reflect.KProperty
 
 fun <T> LifecycleOwner.flowable(initializer: () -> Flowable<T>): ReadOnlyProperty<LifecycleOwner, Flowable<T>> = FlowableCache(lifecycle, initializer)
 
-fun <T> LifecycleOwner.observable(initializer: () -> Observable<T>): ReadOnlyProperty<LifecycleOwner, Observable<T>> =
-    ObservableCache(lifecycle, initializer)
+fun <T> LifecycleOwner.observable(initializer: () -> Observable<T>): ReadOnlyProperty<LifecycleOwner, Observable<T>> = ObservableCache(lifecycle, initializer)
 
 fun <T> LifecycleOwner.single(initializer: () -> Single<T>): ReadOnlyProperty<LifecycleOwner, Single<T>> = SingleCache(lifecycle, initializer)
 
 fun <T> LifecycleOwner.maybe(initializer: () -> Maybe<T>): ReadOnlyProperty<LifecycleOwner, Maybe<T>> = MaybeCache(lifecycle, initializer)
 
-fun <T> LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> =
-    CompletableCache(lifecycle, initializer)
+fun <T> LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> = CompletableCache(lifecycle, initializer)
 
 class FlowableCache<T>(lifecycle: Lifecycle, initializer: () -> Flowable<T>) : RxCache<Flowable<T>, FlowableProcessor<T>>(lifecycle, initializer) {
 
     override fun createHolder(): FlowableProcessor<T> = BehaviorProcessor.create()
 
     override fun subscribe(upstream: Flowable<T>, holder: FlowableProcessor<T>): Disposable = upstream
-        .subscribeOn(Schedulers.io())
-        .subscribe(holder::onNext, holder::onError, holder::onComplete)
+            .subscribeOn(Schedulers.io())
+            .subscribe(holder::onNext, holder::onError, holder::onComplete)
 
     override fun finalize(holder: FlowableProcessor<T>): Flowable<T> = holder.hide()
 }
@@ -43,8 +41,8 @@ class ObservableCache<T>(lifecycle: Lifecycle, initializer: () -> Observable<T>)
     override fun createHolder(): Subject<T> = BehaviorSubject.create()
 
     override fun subscribe(upstream: Observable<T>, holder: Subject<T>): Disposable = upstream
-        .subscribeOn(Schedulers.io())
-        .subscribe(holder::onNext, holder::onError, holder::onComplete)
+            .subscribeOn(Schedulers.io())
+            .subscribe(holder::onNext, holder::onError, holder::onComplete)
 
     override fun finalize(holder: Subject<T>): Observable<T> = holder.hide()
 }
@@ -54,8 +52,8 @@ class SingleCache<T>(lifecycle: Lifecycle, initializer: () -> Single<T>) : RxCac
     override fun createHolder(): Subject<T> = BehaviorSubject.create()
 
     override fun subscribe(upstream: Single<T>, holder: Subject<T>): Disposable = upstream
-        .subscribeOn(Schedulers.io())
-        .subscribe(holder::onNext, holder::onError)
+            .subscribeOn(Schedulers.io())
+            .subscribe(holder::onNext, holder::onError)
 
     override fun finalize(holder: Subject<T>): Single<T> = holder.firstOrError()
 }
@@ -65,8 +63,8 @@ class MaybeCache<T>(lifecycle: Lifecycle, initializer: () -> Maybe<T>) : RxCache
     override fun createHolder(): Subject<T> = BehaviorSubject.create()
 
     override fun subscribe(upstream: Maybe<T>, holder: Subject<T>): Disposable = upstream
-        .subscribeOn(Schedulers.io())
-        .subscribe(holder::onNext, holder::onError, holder::onComplete)
+            .subscribeOn(Schedulers.io())
+            .subscribe(holder::onNext, holder::onError, holder::onComplete)
 
     override fun finalize(holder: Subject<T>): Maybe<T> = holder.firstElement()
 }
@@ -76,8 +74,8 @@ class CompletableCache(lifecycle: Lifecycle, initializer: () -> Completable) : R
     override fun createHolder(): Subject<Unit> = BehaviorSubject.create()
 
     override fun subscribe(upstream: Completable, holder: Subject<Unit>): Disposable = upstream
-        .subscribeOn(Schedulers.io())
-        .subscribe(holder::onComplete, holder::onError)
+            .subscribeOn(Schedulers.io())
+            .subscribe(holder::onComplete, holder::onError)
 
     override fun finalize(holder: Subject<Unit>): Completable = holder.ignoreElements()
 }
