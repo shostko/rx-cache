@@ -23,7 +23,7 @@ fun <T> LifecycleOwner.single(initializer: () -> Single<T>): ReadOnlyProperty<Li
 
 fun <T> LifecycleOwner.maybe(initializer: () -> Maybe<T>): ReadOnlyProperty<LifecycleOwner, Maybe<T>> = MaybeCache(lifecycle, initializer)
 
-fun <T> LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> = CompletableCache(lifecycle, initializer)
+fun LifecycleOwner.completable(initializer: () -> Completable): ReadOnlyProperty<LifecycleOwner, Completable> = CompletableCache(lifecycle, initializer)
 
 class FlowableCache<T>(lifecycle: Lifecycle, initializer: () -> Flowable<T>) : RxCache<Flowable<T>, FlowableProcessor<T>>(lifecycle, initializer) {
 
