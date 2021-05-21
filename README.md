@@ -4,6 +4,8 @@
 
 Provides logic to cache stream item and stay subscribed until Lifecycle ON_DESTROY
 
+![Marbles](/images/marbles.png)
+
 ## Integration
 
 The library is now available in Maven Central repository:
