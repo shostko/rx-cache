@@ -1,19 +1,12 @@
 # RxCache
 
-[ ![Download](https://api.bintray.com/packages/shostko/android/rx-cache/images/download.svg) ](https://bintray.com/shostko/android/rx-cache/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/by.shostko/rx-cache?style=flat)](#integration) [![API-level](https://img.shields.io/badge/API-14+-blue?style=flat&logo=android)](https://source.android.com/setup/start/build-numbers) [![License](https://img.shields.io/badge/license-Apach%202.0-green?style=flat)](#license) 
+
 Provides logic to cache stream item and stay subscribed until Lifecycle ON_DESTROY
 
 ## Integration
 
-As soon as it is still in development you should add to your project Gradle configuration:
-
-```gradle
-repositories {
-    maven { url "https://dl.bintray.com/shostko/android" }
-}
-```
-
-Base module integration:
+The library is now available in Maven Central repository:
 ```gradle
 dependencies {
     implementation 'by.shostko:rx-cache:0.+'
